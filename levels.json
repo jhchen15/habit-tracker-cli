@@ -1,0 +1,31 @@
+{
+  "difficulty_presets": [
+    {
+        "id": "Cadet",
+        "goals": {
+          "sleep": {"target":  6, "unit":  "hours", "type":  "Thrust"},
+          "fitness": {"target":  2, "unit":  "sessions", "type":  "Thrust"},
+          "screen_time": {"limit":  6, "unit":  "hours", "type":  "Drag"}
+        }
+    },
+    {
+        "id": "Captain",
+        "goals": {
+          "sleep": {"target":  7, "unit":  "hours", "type":  "Thrust"},
+          "fitness": {"target":  3, "unit":  "sessions", "type":  "Thrust"},
+          "screen_time": {"limit":  4, "unit":  "hours", "type":  "Drag"}
+        }
+    },
+    {
+        "id": "Ace",
+        "goals": {
+          "sleep": {"target":  8, "unit":  "hours", "type":  "Thrust"},
+          "fitness": {"target":  4, "unit":  "sessions", "type":  "Thrust"},
+          "screen_time": {"limit":  2, "unit":  "hours", "type":  "Drag"}
+        }
+     }
+  ],
+  "custom_presets": [
+
+  ]
+}
