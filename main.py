@@ -1,10 +1,12 @@
 import os
 import json
 import time
+from datetime import datetime
 
 
 USER_FILE = "user_data.json"
 DIFFICULTY_LEVELS = "levels.json"
+TEMP_USER_FILE = "temp_user_data.json"
 
 # =============================
 # Launch Sequence + Main Menu
@@ -21,12 +23,15 @@ def start():
     print("Taking flight...")
     time.sleep(1)
 
-    with open(USER_FILE, "r") as f:
-        user_data = json.load(f)
-        if not user_data["user_name"]:
-            run_user_setup()
+    user_data = None
+    if os.path.exists(USER_FILE):
+        with open(USER_FILE, "r") as f:
+            user_data = json.load(f)
 
-        main_menu()
+    if not user_data or not user_data["user_name"]:
+        run_user_setup()
+
+    main_menu()
 
 
 def main_menu():
@@ -48,11 +53,11 @@ def main_menu():
         for line in menu:
             print(line)
 
-        select = input("Enter your [selection], or 'b' to exit:\n\n>> ")
+        select = input("\nEnter your [selection], or 'b' to exit:\n>> ")
         if select == "1":
-            pass
+            run_log_mission()
         if select == "2":
-            pass
+            read_log_activity()
         if select == "b":
             print("\nPowering down, over and out.")
             break
@@ -153,6 +158,7 @@ def screen_confirm_difficulty(preset):
         elif select == "b":
             return False
         else:
+            print("Invalid selection")
             continue
 
 # =============================
@@ -170,7 +176,7 @@ def run_log_mission():
         user_difficulty = json.load(f)["difficulty_id"]
 
     with open(DIFFICULTY_LEVELS, "r") as f:
-        presets = json.load(f)
+        presets = json.load(f)["difficulty_presets"]
 
     for preset in presets:
         if preset["id"] == user_difficulty:
@@ -178,43 +184,92 @@ def run_log_mission():
 
     while True:
         activity = screen_select_activity(user_goals)
-        if activity == 'b':
+
+        # Return to main menu
+        if not activity:
             return
 
-        while True:
-            log_entry = screen_log_activity(activity)
-            if log_entry == 'b':
-                continue
-            else:
-                confirm = screen_confirm_activity()
+        units = user_goals[activity]["unit"]
 
+        # Log activity loop
+        while True:
+            # Capture log data
+            log_entry = screen_log_activity(activity, units)
+
+            # Return to activity select
+            if not log_entry:
+                break
+
+            # Confirm selection
+            else:
+                confirm = screen_confirm_activity(activity, log_entry, units)
+
+            # Write data to log
             if confirm:
-                # write data to log
+                write_log_activity(activity, log_entry, units)
                 print("Entry confirmed.")
-                return
+                break
 
 
 def screen_select_activity(user_goals):
     """
     Activity selection screen for logging data
-    :return:
+    :return: String containing goal name selected
     """
-    pass
+    goals = list(enumerate(user_goals, start=1))
+
+    while True:
+        print("\nSelect activity to log:")
+        for goal in goals:
+            print(f"[{goal[0]}] {goal[1].title()}")
+
+        choice = input("\nEnter a [number] to select, or 'b' to return to Mission Control\n>> ")
+
+        # Return to menu
+        if choice == "b":
+            return False
+
+        try:
+            # *** Validation microservice ***
+            choice = int(choice) - 1
+            return goals[choice][1]
+        except ValueError:
+            print("Invalid selection")
+            continue
 
 
-def screen_log_activity(activity):
+def screen_log_activity(activity, units):
     """
     Data entry screen for activity
-    :return:
+    :return: Log entry data, or return command to activity selection screen
     """
-    pass
+    while True:
+        print(f"\nEnter {activity} {units}, or 'b' to return to previous page:")
+        data = input(">> ")
+
+        if data.isnumeric():
+            return float(data)
+        elif data == "b":
+            return False
+        else:
+            print("Invalid selection, please enter a number or 'b' to return to goal selection.")
+            continue
 
 
-def screen_confirm_activity():
+def screen_confirm_activity(activity, log_entry, units):
     """
     Confirmation screen for data entry
     :return:
     """
+    while True:
+        print(f"\nYou entered {log_entry} {activity} {units}:")
+        confirm = input("Enter 'y' to confirm, or 'b' to edit\n>> ")
+        if confirm == "y":
+            return True
+        elif confirm == "b":
+            return False
+        else:
+            print("Invalid selection")
 
 
 # =============================
@@ -236,14 +291,51 @@ def write_user_data(name, preset, user_data):
     return
 
 
-def write_log_activity(goals, entry):
+def write_log_activity(activity, log_entry, units):
     """
     Writes log entry to the user data file
-    :param goals:
-    :param entry:
+    :param activity: Log activity ID
+    :param log_entry: Log entry data
     :return:
     """
-    pass
+    with open(USER_FILE, "r") as f:
+        user_data = json.load(f)
+
+    log_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    entry = {
+            "timestamp": log_timestamp,
+            "activity": activity,
+            "quantity": log_entry,
+            "units": units
+             }
+    user_data["flight_logs"].append(entry)
+
+    with open(TEMP_USER_FILE, "w") as f:
+        json.dump(user_data, f)
+
+    os.replace(TEMP_USER_FILE, USER_FILE)
+
+    return
+
+
+def read_log_activity():
+    """
+    Reads logged activity from the user data file
+    :return:
+    """
+    with open(USER_FILE, "r") as f:
+        user_data = json.load(f)
+
+    name = user_data["user_name"]
+    difficulty_id = user_data["difficulty_id"]
+    flight_logs = user_data["flight_logs"]
+
+    print(f"###### FLIGHT LOGS FOR {name.upper()} [{difficulty_id.upper()}] ######\n")
+    for log in flight_logs:
+        print(f"[{log['timestamp']}] {log['activity'].title().replace("_", " ")} - {log['quantity']} {log['units']}")
+
+    input("\nPress [enter] to return to mission control.")
+    return
 
 
 if __name__ == "__main__":
