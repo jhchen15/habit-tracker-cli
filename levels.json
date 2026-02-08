@@ -5,7 +5,7 @@
         "goals": {
           "sleep": {"target":  6, "unit":  "hours", "type":  "Thrust"},
           "fitness": {"target":  2, "unit":  "sessions", "type":  "Thrust"},
-          "screen_time": {"limit":  6, "unit":  "hours", "type":  "Drag"}
+          "screen_time": {"target":  6, "unit":  "hours", "type":  "Drag"}
         }
     },
     {
@@ -13,7 +13,7 @@
         "goals": {
           "sleep": {"target":  7, "unit":  "hours", "type":  "Thrust"},
           "fitness": {"target":  3, "unit":  "sessions", "type":  "Thrust"},
-          "screen_time": {"limit":  4, "unit":  "hours", "type":  "Drag"}
+          "screen_time": {"target":  4, "unit":  "hours", "type":  "Drag"}
         }
     },
     {
@@ -21,7 +21,7 @@
         "goals": {
           "sleep": {"target":  8, "unit":  "hours", "type":  "Thrust"},
           "fitness": {"target":  4, "unit":  "sessions", "type":  "Thrust"},
-          "screen_time": {"limit":  2, "unit":  "hours", "type":  "Drag"}
+          "screen_time": {"target":  2, "unit":  "hours", "type":  "Drag"}
         }
      }
   ],

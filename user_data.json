@@ -1,1 +1,1 @@
-{"user_name": "James", "difficulty_id": "Cadet", "flight_logs": [{"timestamp": "2026-02-05 14:00:07", "activity": "sleep", "quantity": 1.0, "units": "hours"}, {"timestamp": "2026-02-05 14:00:10", "activity": "fitness", "quantity": 1.0, "units": "sessions"}, {"timestamp": "2026-02-05 14:00:14", "activity": "screen_time", "quantity": 1.0, "units": "hours"}]}
+{"user_name": "James", "difficulty_id": "Cadet", "flight_logs": []}
